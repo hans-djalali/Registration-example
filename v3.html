@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registration Page – V3</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #1A0900;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      padding: 40px 20px;
+      gap: 20px;
+    }
+
+    /* ── Version navigation ── */
+    .version-nav {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-arrow {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      font-size: 18px;
+      text-decoration: none;
+      color: #8B5A2B;
+      background: #2A1400;
+      border: 1px solid #4A2600;
+      transition: background 0.15s, color 0.15s;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .nav-arrow.enabled {
+      color: #F5D49A;
+      cursor: pointer;
+      pointer-events: auto;
+    }
+
+    .nav-arrow.enabled:hover {
+      background: #3D1E00;
+      color: #FDE68A;
+    }
+
+    .version-dots {
+      display: flex;
+      gap: 8px;
+    }
+
+    .version-dot {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      border: 1px solid transparent;
+    }
+
+    .version-dot.active {
+      background: #FDE68A;
+      color: #2D1500;
+    }
+
+    .version-dot.available {
+      color: #C97C2C;
+      border-color: #4A2600;
+      background: #2A1400;
+      cursor: pointer;
+    }
+
+    .version-dot.available:hover {
+      color: #F5D49A;
+      border-color: #7A4210;
+    }
+
+    .version-dot.unavailable {
+      color: #444;
+      border-color: #2A1400;
+      background: transparent;
+      cursor: default;
+    }
+
+    .frame-title {
+      color: #C97C2C;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* ── Mobile frame ── */
+    .mobile-frame {
+      width: 375px;
+      height: 812px;
+      background: #FFFBF5;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    /* ── V3 inner layout ── */
+    .v3-inner {
+      position: absolute;
+      inset: 0;
+      padding: 60px 24px 40px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    /* Title */
+    .v3-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: #2D1500;
+      margin-bottom: 28px;
+    }
+
+    /* Form groups */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #2D1500;
+      margin-bottom: 6px;
+    }
+
+    .form-label .required {
+      color: #B91C1C;
+    }
+
+    /* Input wrapper (for eye toggle) */
+    .input-wrapper {
+      position: relative;
+    }
+
+    .form-input {
+      width: 100%;
+      height: 48px;
+      background: #FFFBF5;
+      border: 1.5px solid #D6B896;
+      border-radius: 8px;
+      padding: 0 14px;
+      font-size: 16px;
+      color: #2D1500;
+      font-family: inherit;
+      outline: none;
+    }
+
+    .form-input.has-toggle {
+      padding-right: 48px;
+    }
+
+    .form-input::placeholder {
+      color: #9A6000;
+    }
+
+    /* Eye toggle button */
+    .eye-toggle {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #92400E;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      line-height: 1;
+    }
+
+    /* Field helper / hint */
+    .field-hint {
+      margin-top: 4px;
+      font-size: 12px;
+      color: #92400E;
+    }
+
+    /* ── Strength bar ── */
+    .strength-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      margin-top: 8px;
+    }
+
+    .strength-seg {
+      height: 6px;
+      border-radius: 3px;
+    }
+
+    .strength-seg.filled { background: #B91C1C; }
+    .strength-seg.empty  { background: #F5D0A0; }
+
+    .strength-label {
+      margin-top: 5px;
+      font-size: 12px;
+      color: #B91C1C;
+    }
+
+    /* ── Requirements list ── */
+    .requirements {
+      list-style: none;
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .requirements li {
+      font-size: 12px;
+      line-height: 20px;
+    }
+
+    .req-met  { color: #15803D; }
+    .req-fail { color: #B91C1C; }
+
+    .field-error {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 4px;
+      font-size: 12px;
+      color: #B91C1C;
+    }
+
+    .toast {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(28, 10, 0, 0.93);
+      color: #FDE68A;
+      padding: 14px 24px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      opacity: 0;
+      transition: opacity 0.25s;
+      pointer-events: none;
+      z-index: 100;
+      white-space: nowrap;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+    }
+    .toast.show { opacity: 1; }
+    .toast.error { background: rgba(127, 29, 29, 0.97); color: #FCA5A5; }
+
+    /* ── Button ── */
+    .v3-button {
+      width: 100%;
+      height: 48px;
+      background: #B45309;
+      border: none;
+      border-radius: 10px;
+      color: #FFFFFF;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      margin-top: 24px;
+      flex-shrink: 0;
+    }
+
+    /* ── Terms ── */
+    .v3-terms {
+      margin-top: 16px;
+      font-size: 13px;
+      color: #92400E;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .v3-terms a {
+      color: #B45309;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="version-nav">
+    <a href="v2.html" class="nav-arrow enabled">←</a>
+    <div class="version-dots">
+      <a href="v1.html" class="version-dot available">1</a>
+      <a href="v2.html" class="version-dot available">2</a>
+      <span class="version-dot active">3</span>
+      <a href="v4.html" class="version-dot available">4</a>
+    </div>
+    <span class="nav-arrow">→</span>
+  </nav>
+
+  <p class="frame-title">Version 3 of 4</p>
+
+  <div class="mobile-frame">
+    <div class="v3-inner">
+
+      <h1 class="v3-title">Register</h1>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label class="form-label">Email <span class="required">*</span></label>
+        <input
+          class="form-input"
+          type="email"
+          placeholder="Enter your email address"
+          autocomplete="off"
+        >
+        <span class="field-error" id="email-error" style="display:none">⚠ Please enter a valid email address</span>
+        <span class="field-hint" id="email-hint">We'll send a verification link to this address</span>
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label class="form-label">Password <span class="required">*</span></label>
+        <div class="input-wrapper">
+          <input
+            class="form-input has-toggle"
+            type="password"
+            id="password"
+            placeholder="Enter your password"
+            autocomplete="off"
+          >
+          <button class="eye-toggle" type="button" onclick="toggleVis('password', this)" aria-label="Show password">
+            <svg id="eye-password" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Strength + requirements (hidden until user types) -->
+        <div id="pw-feedback" style="display:none">
+          <div class="strength-bar">
+            <div class="strength-seg filled"></div>
+            <div class="strength-seg filled"></div>
+            <div class="strength-seg empty"></div>
+            <div class="strength-seg empty"></div>
+          </div>
+          <span class="strength-label">Weak — Add numbers and special characters</span>
+          <ul class="requirements">
+            <li class="req-met">✓ At least 8 characters</li>
+            <li class="req-fail">✗ One uppercase letter</li>
+            <li class="req-fail">✗ One number</li>
+            <li class="req-fail">✗ One special character (!@#$%)</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="form-group" style="margin-bottom: 0;">
+        <label class="form-label">Confirm Password <span class="required">*</span></label>
+        <div class="input-wrapper">
+          <input
+            class="form-input has-toggle"
+            type="password"
+            id="confirm-password"
+            placeholder="Confirm your password"
+            autocomplete="off"
+          >
+          <button class="eye-toggle" type="button" onclick="toggleVis('confirm-password', this)" aria-label="Show confirm password">
+            <svg id="eye-confirm-password" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <button class="v3-button" id="reg-btn">Register</button>
+
+      <p class="v3-terms">
+        By registering, you agree to our
+        <a href="#">Terms of Service</a>
+      </p>
+
+    </div>
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <script>
+    const EYE_OPEN = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+    const EYE_OFF  = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+
+    /* ── Toast ── */
+    function showToast(msg, isError) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.toggle('error', !!isError);
+      t.classList.add('show');
+      clearTimeout(window._toast);
+      window._toast = setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    /* ── Email validation ── */
+    function isValidEmail(val) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
+    }
+
+    const emailInput  = document.querySelector('input[type="email"]');
+    const emailError  = document.getElementById('email-error');
+    const emailHint   = document.getElementById('email-hint');
+
+    emailInput.addEventListener('blur', function () {
+      if (this.value && !isValidEmail(this.value)) {
+        emailError.style.display = 'flex';
+        emailHint.style.display  = 'none';
+      } else {
+        emailError.style.display = 'none';
+        emailHint.style.display  = '';
+      }
+    });
+    emailInput.addEventListener('input', function () {
+      if (emailError.style.display !== 'none') {
+        emailError.style.display = 'none';
+        emailHint.style.display  = '';
+      }
+    });
+
+    /* ── Password validation ── */
+    const REQ_KEYS  = ['length', 'upper', 'number', 'special'];
+    const REQ_TEXTS = ['At least 8 characters', 'One uppercase letter', 'One number', 'One special character (!@#$%)'];
+    const STRENGTH_LABELS = ['', 'Very weak', 'Weak — Add numbers and special characters', 'Fair — Add a special character', 'Strong password'];
+    const STRENGTH_COLORS = ['', '#B91C1C', '#B91C1C', '#B45309', '#15803D'];
+
+    document.getElementById('password').addEventListener('input', function () {
+      const val      = this.value;
+      const feedback = document.getElementById('pw-feedback');
+
+      if (!val) { feedback.style.display = 'none'; return; }
+      feedback.style.display = 'block';
+
+      const checks = {
+        length:  val.length >= 8,
+        upper:   /[A-Z]/.test(val),
+        number:  /[0-9]/.test(val),
+        special: /[!@#$%^&*()\-_=+[\]{};:'",.<>?/\\|`~]/.test(val)
+      };
+      const score    = REQ_KEYS.filter(k => checks[k]).length;
+      const barColor = STRENGTH_COLORS[score];
+
+      document.querySelectorAll('.strength-seg').forEach((seg, i) => {
+        seg.style.background = i < score ? barColor : '#F5D0A0';
+      });
+
+      const lbl = document.querySelector('.strength-label');
+      lbl.textContent  = STRENGTH_LABELS[score];
+      lbl.style.color  = STRENGTH_COLORS[score];
+
+      document.querySelectorAll('.requirements li').forEach((li, i) => {
+        const met    = checks[REQ_KEYS[i]];
+        li.textContent = (met ? '✓ ' : '✗ ') + REQ_TEXTS[i];
+        li.className   = met ? 'req-met' : 'req-fail';
+      });
+    });
+
+    /* ── Button ── */
+    document.getElementById('reg-btn').addEventListener('click', function () {
+      const email    = document.querySelector('input[type="email"]').value.trim();
+      const password = document.getElementById('password').value;
+      const confirm  = document.getElementById('confirm-password').value;
+
+      if (!email)               { showToast('Email is required', true); return; }
+      if (!isValidEmail(email)) { showToast('Please enter a valid email address', true); return; }
+      if (!password)            { showToast('Password is required', true); return; }
+
+      const checks = {
+        length:  password.length >= 8,
+        upper:   /[A-Z]/.test(password),
+        number:  /[0-9]/.test(password),
+        special: /[!@#$%^&*()\-_=+[\]{};:'",.<>?/\\|`~]/.test(password)
+      };
+      if (!checks.length)  { showToast('Password must be at least 8 characters', true); return; }
+      if (!checks.upper)   { showToast('Password needs an uppercase letter', true); return; }
+      if (!checks.number)  { showToast('Password needs a number', true); return; }
+      if (!checks.special) { showToast('Password needs a special character', true); return; }
+      if (!confirm)        { showToast('Please confirm your password', true); return; }
+      if (password !== confirm) { showToast('Passwords do not match', true); return; }
+
+      showToast('Registration submitted!');
+    });
+
+    /* ── Eye toggle ── */
+    function toggleVis(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.innerHTML = EYE_OFF;
+        btn.setAttribute('aria-label', 'Hide ' + (inputId === 'password' ? 'password' : 'confirm password'));
+      } else {
+        input.type = 'password';
+        btn.innerHTML = EYE_OPEN;
+        btn.setAttribute('aria-label', 'Show ' + (inputId === 'password' ? 'password' : 'confirm password'));
+      }
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registration Page – V4</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #1A0900;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      padding: 40px 20px;
+      gap: 20px;
+    }
+
+    /* ── Version navigation ── */
+    .version-nav { display: flex; align-items: center; gap: 12px; }
+
+    .nav-arrow {
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 8px; font-size: 18px; text-decoration: none;
+      color: #8B5A2B; background: #2A1400; border: 1px solid #4A2600;
+      transition: background 0.15s, color 0.15s;
+      cursor: default; pointer-events: none;
+    }
+    .nav-arrow.enabled { color: #F5D49A; cursor: pointer; pointer-events: auto; }
+    .nav-arrow.enabled:hover { background: #3D1E00; color: #FDE68A; }
+
+    .version-dots { display: flex; gap: 8px; }
+
+    .version-dot {
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 6px; font-size: 13px; font-weight: 600;
+      text-decoration: none; border: 1px solid transparent;
+    }
+    .version-dot.active    { background: #FDE68A; color: #2D1500; }
+    .version-dot.available { color: #C97C2C; border-color: #4A2600; background: #2A1400; cursor: pointer; }
+    .version-dot.available:hover { color: #F5D49A; border-color: #7A4210; }
+
+    .frame-title {
+      color: #C97C2C; font-size: 13px;
+      letter-spacing: 0.08em; text-transform: uppercase;
+    }
+
+    /* ── Mobile frame — dark warm gradient background ── */
+    .mobile-frame {
+      width: 375px; height: 812px;
+      position: relative; overflow: hidden; flex-shrink: 0;
+      background: #1A0900;
+      background-image:
+        radial-gradient(ellipse at 15% 18%, rgba(194, 68, 11, 0.45)  0%, transparent 48%),
+        radial-gradient(ellipse at 88% 85%, rgba(157, 23, 77, 0.40)  0%, transparent 48%),
+        radial-gradient(ellipse at 70% 20%, rgba(217, 119, 6, 0.28)  0%, transparent 42%),
+        radial-gradient(ellipse at 30% 80%, rgba(161, 98, 7, 0.20)   0%, transparent 38%);
+    }
+
+    /* ── Scrollable wrapper ── */
+    .v4-scroll {
+      position: absolute; inset: 0; overflow-y: auto;
+      padding: 18px 14px 24px;
+      scrollbar-width: none; -ms-overflow-style: none;
+    }
+    .v4-scroll::-webkit-scrollbar { display: none; }
+
+    /* ── Card ── */
+    .v4-card {
+      background: #FFFBF5;
+      border-radius: 24px;
+      box-shadow:
+        0 32px 80px rgba(0, 0, 0, 0.55),
+        0  0   0  1px rgba(180, 83, 9, 0.12);
+      padding: 28px 24px 24px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    .card-icon {
+      width: 52px; height: 52px;
+      background: linear-gradient(135deg, #B45309, #9D174D);
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 14px;
+      box-shadow: 0 8px 28px rgba(180, 83, 9, 0.45);
+    }
+
+    .v4-title {
+      font-size: 24px; font-weight: 800;
+      text-align: center; letter-spacing: -0.3px;
+      background: linear-gradient(135deg, #92400E 0%, #9D174D 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .v4-subtitle {
+      font-size: 13px; color: #78350F;
+      text-align: center; margin-top: 4px; margin-bottom: 18px;
+    }
+
+    /* ── Social buttons — side by side ── */
+    .social-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .social-btn {
+      height: 46px; border-radius: 12px;
+      font-size: 14px; font-weight: 600;
+      font-family: inherit; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px;
+      transition: transform 0.1s, box-shadow 0.15s, background 0.15s;
+    }
+    .social-btn:active { transform: scale(0.97); }
+
+    .google-btn {
+      background: #FFFFFF;
+      border: 1.5px solid #FED7AA;
+      color: #374151;
+    }
+    .google-btn:hover {
+      background: #FFFBF5;
+      box-shadow: 0 2px 12px rgba(180, 83, 9, 0.12);
+      border-color: #D97706;
+    }
+
+    .apple-btn {
+      background: #111111;
+      border: 1.5px solid #111111;
+      color: #FFFFFF;
+    }
+    .apple-btn:hover {
+      background: #1F1F1F;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    /* ── Divider ── */
+    .divider {
+      display: flex; align-items: center; margin: 16px 0 14px;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: #FED7AA;
+    }
+    .divider span {
+      font-size: 12px; font-weight: 500; color: #92400E;
+      background: #FFFBF5; padding: 0 14px; letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* ── Form groups ── */
+    .form-group { display: flex; flex-direction: column; margin-bottom: 12px; }
+
+    .form-label {
+      font-size: 13px; font-weight: 600;
+      color: #2D1500; margin-bottom: 6px; letter-spacing: 0.01em;
+    }
+    .required { color: #B45309; }
+
+    /* ── Input wrapper ── */
+    .input-wrapper { position: relative; }
+
+    .form-input {
+      width: 100%; height: 46px;
+      background: #FFF7ED;
+      border: 1.5px solid #FED7AA;
+      border-radius: 12px;
+      padding: 0 16px;
+      font-size: 15px; color: #2D1500;
+      font-family: inherit; outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+    .form-input::placeholder { color: #9A6000; }
+
+    .form-input:focus {
+      background: #FFFBF5;
+      border-color: #B45309;
+      box-shadow: 0 0 0 3px rgba(180, 83, 9, 0.12);
+    }
+
+    .form-input.input-error {
+      background: #FFF5F5;
+      border-color: #FCA5A5;
+    }
+    .form-input.input-error:focus {
+      border-color: #EF4444;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+
+    .form-input.has-right-icon { padding-right: 46px; }
+
+    /* Inline field errors */
+    .field-err {
+      font-size: 11.5px; color: #EF4444;
+      margin-top: 4px; display: none;
+      align-items: center; gap: 4px;
+    }
+    .field-err.show { display: flex; }
+
+    /* Green checkmark */
+    .input-checkmark {
+      position: absolute; right: 14px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px; color: #15803D; font-weight: 700;
+      pointer-events: none;
+    }
+
+    /* Eye toggle */
+    .eye-toggle {
+      position: absolute; right: 12px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      color: #D97706; display: flex; align-items: center; padding: 0;
+      transition: color 0.15s;
+    }
+    .eye-toggle:hover { color: #B45309; }
+
+    /* Field hint */
+    .field-hint { margin-top: 4px; font-size: 11.5px; color: #92400E; }
+
+    /* ── Strength bar ── */
+    .strength-bar {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 4px; margin-top: 8px;
+    }
+    .strength-seg {
+      height: 4px; border-radius: 4px;
+      background: #FED7AA; transition: background 0.25s;
+    }
+
+    .strength-label {
+      margin-top: 5px; font-size: 11.5px; font-weight: 600;
+    }
+
+    /* ── Requirements ── */
+    .requirements { list-style: none; margin-top: 6px; }
+    .requirements li {
+      font-size: 11.5px; line-height: 19px; transition: color 0.15s;
+    }
+    .req-met  { color: #15803D; }
+    .req-fail { color: #B91C1C; }
+    .req-idle { color: #B45309; }
+
+    /* ── Match indicator ── */
+    .match-indicator { margin-top: 4px; font-size: 11.5px; font-weight: 600; }
+
+    /* ── Terms row ── */
+    .terms-row {
+      display: flex; align-items: flex-start;
+      gap: 8px; margin-top: 10px; margin-bottom: 12px;
+    }
+
+    .terms-checkbox {
+      width: 18px; height: 18px; min-width: 18px;
+      border: 1.5px solid #FED7AA; border-radius: 5px;
+      appearance: none; -webkit-appearance: none;
+      margin-top: 1px; cursor: pointer;
+      background: #FFF7ED;
+      transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+    }
+    .terms-checkbox:hover {
+      border-color: #B45309;
+      box-shadow: 0 0 0 3px rgba(180, 83, 9, 0.1);
+    }
+    .terms-checkbox:checked {
+      background: linear-gradient(135deg, #B45309, #9D174D);
+      border-color: transparent;
+      background-image:
+        url("data:image/svg+xml,%3Csvg width='12' height='10' viewBox='0 0 12 10' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 5L4.5 8.5L11 1' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"),
+        linear-gradient(135deg, %23B45309, %239D174D);
+      background-repeat: no-repeat;
+      background-position: center, center;
+    }
+    .terms-checkbox.input-error { border-color: #FCA5A5; background: #FFF5F5; }
+
+    .terms-label { font-size: 11px; color: #7C5C3A; line-height: 1.5; cursor: pointer; }
+    .terms-label a { color: #B45309; text-decoration: underline; text-underline-offset: 2px; }
+
+    /* ── Register button ── */
+    .v4-button {
+      width: 100%; height: 50px;
+      background: linear-gradient(135deg, #B45309 0%, #9D174D 100%);
+      box-shadow: 0 4px 20px rgba(180, 83, 9, 0.45);
+      border: none; border-radius: 14px;
+      color: #FFFFFF; font-size: 16px; font-weight: 700;
+      font-family: inherit; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      transition: opacity 0.15s, box-shadow 0.15s, transform 0.1s;
+      letter-spacing: 0.02em;
+    }
+    .v4-button:hover {
+      opacity: 0.9;
+      box-shadow: 0 8px 30px rgba(180, 83, 9, 0.55);
+    }
+    .v4-button:active { transform: scale(0.98); }
+
+    /* ── Sign-in link ── */
+    .signin-link {
+      margin-top: 14px; font-size: 13px;
+      color: #78350F; text-align: center;
+    }
+    .signin-link a {
+      color: #B45309; font-weight: 700; text-decoration: none;
+    }
+    .signin-link a:hover { text-decoration: underline; }
+
+    /* ── Success overlay ── */
+    .success-overlay {
+      position: absolute; inset: 0;
+      display: none; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 200; padding: 40px 32px; text-align: center;
+      background: #1A0900;
+      background-image:
+        radial-gradient(ellipse at 20% 30%, rgba(194, 68, 11, 0.42) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 70%, rgba(157, 23, 77, 0.38) 0%, transparent 50%);
+      animation: fadeIn 0.35s ease;
+    }
+    .success-overlay.show { display: flex; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    .success-circle {
+      width: 80px; height: 80px;
+      background: linear-gradient(135deg, #10B981, #059669);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 24px;
+      box-shadow: 0 12px 40px rgba(16, 185, 129, 0.5);
+      animation: popIn 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    .success-title {
+      font-size: 26px; font-weight: 800;
+      letter-spacing: -0.3px; margin-bottom: 10px;
+      background: linear-gradient(135deg, #F59E0B, #C2440B);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .success-sub {
+      font-size: 14px; color: #92400E;
+      line-height: 1.65; margin-bottom: 36px; max-width: 260px;
+    }
+
+    .success-back {
+      font-size: 14px; color: #B45309; font-weight: 600;
+      cursor: pointer; background: none; border: none;
+      font-family: inherit; text-decoration: underline;
+      text-underline-offset: 2px; opacity: 0.8;
+    }
+    .success-back:hover { opacity: 1; }
+
+    /* ── Toast ── */
+    .toast {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(28, 10, 0, 0.96);
+      border: 1px solid rgba(180, 83, 9, 0.35);
+      color: #FDE68A;
+      padding: 14px 24px; border-radius: 14px;
+      font-size: 14px; font-weight: 500;
+      opacity: 0; transition: opacity 0.25s;
+      pointer-events: none; z-index: 100;
+      white-space: nowrap;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+    .toast.show  { opacity: 1; }
+    .toast.error {
+      background: rgba(127, 29, 29, 0.97);
+      border-color: rgba(239, 68, 68, 0.35);
+      color: #FCA5A5;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="version-nav">
+    <a href="v3.html" class="nav-arrow enabled">←</a>
+    <div class="version-dots">
+      <a href="v1.html" class="version-dot available">1</a>
+      <a href="v2.html" class="version-dot available">2</a>
+      <a href="v3.html" class="version-dot available">3</a>
+      <span class="version-dot active">4</span>
+    </div>
+    <span class="nav-arrow">→</span>
+  </nav>
+
+  <p class="frame-title">Version 4 of 4</p>
+
+  <div class="mobile-frame">
+
+    <div class="v4-scroll">
+      <div class="v4-card">
+
+        <!-- Header -->
+        <div class="card-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </div>
+        <h1 class="v4-title">Create Account</h1>
+        <p class="v4-subtitle">Join thousands of users today</p>
+
+        <!-- Social login — side by side -->
+        <div class="social-row">
+          <button class="social-btn google-btn" type="button">
+            <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Google
+          </button>
+
+          <button class="social-btn apple-btn" type="button">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+            </svg>
+            Apple
+          </button>
+        </div>
+
+        <!-- Divider -->
+        <div class="divider"><span>or</span></div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label class="form-label" for="email">Email <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <input class="form-input has-right-icon" id="email" type="email" placeholder="you@example.com" autocomplete="email">
+            <span class="input-checkmark" id="email-check" style="display:none">✓</span>
+          </div>
+          <span class="field-err"  id="email-err">⚠ Please enter a valid email address</span>
+          <span class="field-hint" id="email-hint">We'll send a verification link to this address</span>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label class="form-label" for="password">Password <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <input class="form-input has-right-icon" id="password" type="password" placeholder="Create a strong password" autocomplete="new-password">
+            <button class="eye-toggle" type="button" onclick="toggleVis('password', this)" aria-label="Show password">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+
+          <div id="pw-feedback" style="display:none">
+            <div class="strength-bar">
+              <div class="strength-seg"></div>
+              <div class="strength-seg"></div>
+              <div class="strength-seg"></div>
+              <div class="strength-seg"></div>
+            </div>
+            <span class="strength-label"></span>
+            <ul class="requirements">
+              <li class="req-idle" data-key="length">○ At least 8 characters</li>
+              <li class="req-idle" data-key="upper">○ One uppercase letter</li>
+              <li class="req-idle" data-key="number">○ One number</li>
+              <li class="req-idle" data-key="special">○ One special character (!@#$%)</li>
+            </ul>
+          </div>
+          <span class="field-err" id="pw-err">⚠ Password does not meet all requirements</span>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label" for="confirm-password">Confirm Password <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <input class="form-input has-right-icon" id="confirm-password" type="password" placeholder="Repeat your password" autocomplete="new-password">
+            <button class="eye-toggle" type="button" onclick="toggleVis('confirm-password', this)" aria-label="Show confirm password">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+          <span class="match-indicator" id="match-ok" style="display:none; color:#15803D">✓ Passwords match</span>
+          <span class="match-indicator" id="match-no" style="display:none; color:#B91C1C">✗ Passwords do not match</span>
+          <span class="field-err"       id="confirm-err">⚠ Passwords do not match</span>
+        </div>
+
+        <!-- Terms -->
+        <div class="terms-row">
+          <input type="checkbox" class="terms-checkbox" id="terms">
+          <label class="terms-label" for="terms">
+            I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+          </label>
+        </div>
+
+        <!-- Button -->
+        <button class="v4-button" id="reg-btn" type="button">
+          <span>Create Account</span>
+          <span aria-hidden="true">→</span>
+        </button>
+
+        <!-- Sign-in link -->
+        <p class="signin-link">
+          Already have an account? <a href="#">Sign in</a>
+        </p>
+
+      </div>
+    </div>
+
+    <!-- Success screen -->
+    <div class="success-overlay" id="success-overlay">
+      <div class="success-circle">
+        <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <h2 class="success-title">You're In! 🎉</h2>
+      <p class="success-sub">Your account has been created. Check your inbox for a verification link.</p>
+      <button class="success-back" onclick="document.getElementById('success-overlay').classList.remove('show')">
+        ← Back to form
+      </button>
+    </div>
+
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <script>
+    const EYE_OPEN = `<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+    const EYE_OFF  = `<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+
+    function isValidEmail(v) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim());
+    }
+
+    function setFieldError(inputId, errId, show) {
+      const input = document.getElementById(inputId);
+      const err   = document.getElementById(errId);
+      if (input) input.classList.toggle('input-error', show);
+      if (err)   err.classList.toggle('show', show);
+    }
+
+    function showToast(msg, isError) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.toggle('error', !!isError);
+      t.classList.add('show');
+      clearTimeout(window._toast);
+      window._toast = setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    /* Email */
+    const emailInput = document.getElementById('email');
+    emailInput.addEventListener('blur', function () {
+      if (this.value && isValidEmail(this.value)) {
+        document.getElementById('email-check').style.display = '';
+      } else {
+        document.getElementById('email-check').style.display = 'none';
+      }
+    });
+    emailInput.addEventListener('input', function () {
+      document.getElementById('email-check').style.display = 'none';
+      setFieldError('email', 'email-err', false);
+    });
+
+    /* Password strength */
+    const REQ_KEYS   = ['length', 'upper', 'number', 'special'];
+    const REQ_LABELS = {
+      length: 'At least 8 characters',
+      upper:  'One uppercase letter',
+      number: 'One number',
+      special:'One special character (!@#$%)'
+    };
+    const STRENGTH_META = [
+      null,
+      { label: 'Very weak',                          color: '#B91C1C' },
+      { label: 'Weak — add numbers & symbols',       color: '#B91C1C' },
+      { label: 'Fair — almost there!',               color: '#B45309' },
+      { label: 'Strong password ✓',                  color: '#15803D' }
+    ];
+
+    function getChecks(val) {
+      return {
+        length:  val.length >= 8,
+        upper:   /[A-Z]/.test(val),
+        number:  /[0-9]/.test(val),
+        special: /[!@#$%^&*()\-_=+[\]{};:'",.<>?/\\|`~]/.test(val)
+      };
+    }
+
+    document.getElementById('password').addEventListener('input', function () {
+      const val      = this.value;
+      const feedback = document.getElementById('pw-feedback');
+      setFieldError('password', 'pw-err', false);
+
+      if (!val) { feedback.style.display = 'none'; updateMatch(); return; }
+      feedback.style.display = 'block';
+
+      const checks = getChecks(val);
+      const score  = REQ_KEYS.filter(k => checks[k]).length;
+      const meta   = STRENGTH_META[score];
+
+      document.querySelectorAll('.strength-seg').forEach((seg, i) => {
+        seg.style.background = i < score ? meta.color : '#FED7AA';
+      });
+
+      const lbl = document.querySelector('.strength-label');
+      lbl.textContent = meta.label;
+      lbl.style.color = meta.color;
+
+      document.querySelectorAll('.requirements li').forEach(li => {
+        const met = checks[li.dataset.key];
+        li.textContent = (met ? '✓ ' : '✗ ') + REQ_LABELS[li.dataset.key];
+        li.className   = met ? 'req-met' : 'req-fail';
+      });
+
+      updateMatch();
+    });
+
+    /* Confirm password */
+    function updateMatch() {
+      const pw  = document.getElementById('password').value;
+      const cpw = document.getElementById('confirm-password').value;
+      const ok  = document.getElementById('match-ok');
+      const no  = document.getElementById('match-no');
+      if (!cpw) { ok.style.display = 'none'; no.style.display = 'none'; return; }
+      const match = pw === cpw;
+      ok.style.display = match ? '' : 'none';
+      no.style.display = match ? 'none' : '';
+    }
+
+    document.getElementById('confirm-password').addEventListener('input', function () {
+      setFieldError('confirm-password', 'confirm-err', false);
+      updateMatch();
+    });
+
+    document.getElementById('terms').addEventListener('change', function () {
+      this.classList.remove('input-error');
+    });
+
+    /* Submit */
+    document.getElementById('reg-btn').addEventListener('click', function () {
+      ['email','password','confirm-password'].forEach(id =>
+        document.getElementById(id).classList.remove('input-error')
+      );
+      document.querySelectorAll('.field-err').forEach(el => el.classList.remove('show'));
+      document.getElementById('terms').classList.remove('input-error');
+
+      const email    = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const confirm  = document.getElementById('confirm-password').value;
+      const terms    = document.getElementById('terms').checked;
+      const checks   = getChecks(password);
+      let err = false;
+
+      if (!email || !isValidEmail(email))                                     { setFieldError('email','email-err',true);       document.getElementById('email-check').style.display='none'; err=true; }
+      if (!password || !checks.length || !checks.upper || !checks.number || !checks.special) { setFieldError('password','pw-err',true);       err=true; }
+      if (!confirm || password !== confirm)                                   { setFieldError('confirm-password','confirm-err',true); err=true; }
+      if (!terms)                                                             { document.getElementById('terms').classList.add('input-error'); err=true; }
+
+      if (err) {
+        document.querySelector('.input-error')?.scrollIntoView({ behavior:'smooth', block:'center' });
+        return;
+      }
+      document.getElementById('success-overlay').classList.add('show');
+    });
+
+    /* Eye toggle */
+    function toggleVis(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';  btn.innerHTML = EYE_OFF;
+        btn.setAttribute('aria-label', 'Hide password');
+      } else {
+        input.type = 'password'; btn.innerHTML = EYE_OPEN;
+        btn.setAttribute('aria-label', 'Show password');
+      }
+    }
+  </script>
+
+</body>
+</html>
