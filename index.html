@@ -207,6 +207,17 @@
       box-shadow: 0 4px 20px rgba(0,0,0,0.35);
     }
     .toast.show { opacity: 1; }
+
+    .byline {
+      position: fixed;
+      bottom: 14px;
+      right: 18px;
+      font-size: 10px;
+      color: rgba(180, 83, 9, 0.35);
+      letter-spacing: 0.04em;
+      pointer-events: none;
+      user-select: none;
+    }
   </style>
 </head>
 <body>
@@ -260,6 +271,8 @@
       showToast('Registration submitted!');
     });
   </script>
+
+  <p class="byline">made by Hans Djalali</p>
 
 </body>
 </html>
